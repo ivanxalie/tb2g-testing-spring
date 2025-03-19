@@ -10,15 +10,15 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringJUnitConfig(HearingInterpreterPackageScanTest.TestConfig.class)
-@ActiveProfiles("laurel")
-class HearingInterpreterPackageScanTest {
+@SpringJUnitConfig(HearingInterpreterActiveProfileTest.TestConfig.class)
+@ActiveProfiles("yanny")
+public class HearingInterpreterActiveProfileTest {
     @Autowired
     private HearingInterpreter interpreter;
 
     @Test
     void whatIHeard() {
-        assertEquals("Laurel", interpreter.whatIHeard());
+        assertEquals("Yanny", interpreter.whatIHeard());
     }
 
     @Configuration
