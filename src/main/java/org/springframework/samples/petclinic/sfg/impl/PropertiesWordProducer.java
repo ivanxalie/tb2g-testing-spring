@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("externalized")
-public class YannyPropertiesWordProducer implements WordProducer {
+public class PropertiesWordProducer implements WordProducer {
     private String word;
 
     @Value("${say.word}")
