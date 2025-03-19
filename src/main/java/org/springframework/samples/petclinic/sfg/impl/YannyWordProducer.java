@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.sfg;
+package org.springframework.samples.petclinic.sfg.impl;
 
 import org.springframework.stereotype.Component;
 
