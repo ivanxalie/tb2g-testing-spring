@@ -2,6 +2,10 @@ package org.springframework.samples.petclinic.web;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -11,12 +15,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.samples.petclinic.web.OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(MockitoExtension.class)
 @SpringJUnitWebConfig(locations = {"classpath:spring/mvc-test-config.xml", "classpath:spring/mvc-core-config.xml"})
 class OwnerControllerTest {
 
@@ -27,6 +33,9 @@ class OwnerControllerTest {
     private ClinicService clinicService;
 
     private MockMvc mockMvc;
+
+    @Captor
+    private ArgumentCaptor<String> captor;
 
     @BeforeEach
     void setUp() {
@@ -63,7 +72,9 @@ class OwnerControllerTest {
                 .andExpect(model().attributeExists("selections"))
                 .andExpect(view().name("owners/ownersList"));
 
-        then(clinicService).should().findOwnerByLastName("");
+        then(clinicService).should().findOwnerByLastName(captor.capture());
+
+        assertThat(captor.getValue()).isNotNull().isEqualTo("");
     }
 
     @Test
