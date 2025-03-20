@@ -129,13 +129,53 @@ class OwnerControllerTest {
             assertThat(capturedOwner.getCity()).isNotNull().isEqualTo("Key West");
             assertThat(capturedOwner.getTelephone()).isNotNull().isEqualTo("321321321");
         });
-
     }
 
     @Test
     void processCreationFormNotValid() throws Exception {
         mockMvc
                 .perform(post("/owners/new"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasErrors("owner"))
+                .andExpect(model().attributeHasFieldErrors("owner", "firstName"))
+                .andExpect(model().attributeHasFieldErrors("owner", "lastName"))
+                .andExpect(model().attributeHasFieldErrors("owner", "address"))
+                .andExpect(model().attributeHasFieldErrors("owner", "city"))
+                .andExpect(model().attributeHasFieldErrors("owner", "telephone"))
+                .andExpect(view().name(VIEWS_OWNER_CREATE_OR_UPDATE_FORM));
+    }
+
+    @Test
+    void processUpdateOwnerFormValid() throws Exception {
+        doNothing().when(clinicService).saveOwner(ownerArgumentCaptor.capture());
+        mockMvc
+                .perform(post("/owners/{ownerId}/edit", 200)
+                        .param("firstName", "Jimmy")
+                        .param("lastName", "Buffet")
+                        .param("Address", "123 Duval St")
+                        .param("city", "Key West")
+                        .param("telephone", "321321321")
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/{ownerId}"));
+
+        Owner owner = ownerArgumentCaptor.getValue();
+
+        assertThat(owner).isNotNull().satisfies(capturedOwner -> {
+            assertThat(capturedOwner.getId()).isEqualTo(200);
+            assertThat(capturedOwner.getFirstName()).isNotNull().isEqualTo("Jimmy");
+            assertThat(capturedOwner.getLastName()).isNotNull().isEqualTo("Buffet");
+            assertThat(capturedOwner.getAddress()).isNotNull().isEqualTo("123 Duval St");
+            assertThat(capturedOwner.getCity()).isNotNull().isEqualTo("Key West");
+            assertThat(capturedOwner.getTelephone()).isNotNull().isEqualTo("321321321");
+        });
+
+    }
+
+    @Test
+    void processUpdateOwnerFormNotValid() throws Exception {
+        mockMvc
+                .perform(post("/owners/{ownerId}/edit", 200))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasErrors("owner"))
                 .andExpect(model().attributeHasFieldErrors("owner", "firstName"))
