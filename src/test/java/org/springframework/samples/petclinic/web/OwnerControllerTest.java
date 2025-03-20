@@ -46,7 +46,7 @@ class OwnerControllerTest {
     }
 
     @Test
-    void findByNameNotFound() throws Exception {
+    void processFindFormNotFound() throws Exception {
         mockMvc.perform(get("/owners")
                         .param("lastName", "Donnt find me!"))
                 .andExpect(status().isOk())
@@ -54,7 +54,7 @@ class OwnerControllerTest {
     }
 
     @Test
-    void findByNameReturnList() throws Exception {
+    void processFindFormReturnList() throws Exception {
         given(clinicService.findOwnerByLastName(""))
                 .willReturn(List.of(new Owner(), new Owner()));
 
@@ -67,7 +67,7 @@ class OwnerControllerTest {
     }
 
     @Test
-    void findByNameReturnSingle() throws Exception {
+    void processFindFormReturnSingle() throws Exception {
         Owner single = new Owner();
         single.setId(1);
         given(clinicService.findOwnerByLastName("Alex"))
