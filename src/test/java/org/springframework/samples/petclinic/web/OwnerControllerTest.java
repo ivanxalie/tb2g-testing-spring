@@ -19,9 +19,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.reset;
 import static org.springframework.samples.petclinic.web.OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +39,10 @@ class OwnerControllerTest {
     private MockMvc mockMvc;
 
     @Captor
-    private ArgumentCaptor<String> captor;
+    private ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Owner> ownerArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -79,9 +84,9 @@ class OwnerControllerTest {
                 .andExpect(model().attributeExists("selections"))
                 .andExpect(view().name("owners/ownersList"));
 
-        then(clinicService).should().findOwnerByLastName(captor.capture());
+        then(clinicService).should().findOwnerByLastName(stringArgumentCaptor.capture());
 
-        assertThat(captor.getValue()).isNotNull().isEqualTo("");
+        assertThat(stringArgumentCaptor.getValue()).isNotNull().isEqualTo("");
     }
 
     @Test
@@ -97,5 +102,31 @@ class OwnerControllerTest {
                 .andExpect(view().name("redirect:/owners/" + single.getId()));
 
         then(clinicService).should().findOwnerByLastName("Alex");
+    }
+
+    @Test
+    void testNewOwnerPostValid() throws Exception {
+        doNothing().when(clinicService).saveOwner(ownerArgumentCaptor.capture());
+        mockMvc
+                .perform(post("/owners/new")
+                        .param("firstName", "Jimmy")
+                        .param("lastName", "Buffet")
+                        .param("Address", "123 Duval St")
+                        .param("city", "Key West")
+                        .param("telephone", "321321321")
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/null"));
+
+        Owner owner = ownerArgumentCaptor.getValue();
+
+        assertThat(owner).isNotNull().satisfies(capturedOwner -> {
+            assertThat(capturedOwner.getFirstName()).isNotNull().isEqualTo("Jimmy");
+            assertThat(capturedOwner.getLastName()).isNotNull().isEqualTo("Buffet");
+            assertThat(capturedOwner.getAddress()).isNotNull().isEqualTo("123 Duval St");
+            assertThat(capturedOwner.getCity()).isNotNull().isEqualTo("Key West");
+            assertThat(capturedOwner.getTelephone()).isNotNull().isEqualTo("321321321");
+        });
+
     }
 }
